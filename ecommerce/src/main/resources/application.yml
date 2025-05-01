@@ -1,6 +1,7 @@
 spring:
   application:
     name: ecommerce
+
   datasource:
     url: jdbc:postgresql://localhost:5433/db_ecommerce
     username: admin
@@ -11,6 +12,7 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,5 +20,20 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   profiles:
     active: dev
+
+  jwt:
+    token:
+      secret-key: vinicius_lemes  # Chave secreta para assinar os tokens
+      expire-length: 3600000  # Tempo de expiração do Access Token (em milissegundos)
+    refresh-token:
+      expire-length: 86400000  # Tempo de expiração do Refresh Token (em milissegundos)
+
+  security:
+    encoder:
+      id: pbkdf2
+      secret: vinicius
+      iterations: 185000
+      hash-width: 256
