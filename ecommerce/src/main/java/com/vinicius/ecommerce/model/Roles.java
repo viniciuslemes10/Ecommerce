@@ -4,6 +4,7 @@ import com.vinicius.ecommerce.model.enums.RolesName;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +13,7 @@ import java.util.Set;
 @Table(name = "tb_roles")
 @Data
 @EqualsAndHashCode(of = "id")
-public class Roles {
+public class Roles implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,4 +24,9 @@ public class Roles {
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users = new HashSet<>();
+
+    @Override
+    public String getAuthority() {
+        return name.name();
+    }
 }
