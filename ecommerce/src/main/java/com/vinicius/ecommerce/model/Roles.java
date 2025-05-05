@@ -32,4 +32,28 @@ public class Roles implements GrantedAuthority, Serializable {
     public String getAuthority() {
         return name.name();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public RolesName getName() {
+        return name;
+    }
+
+    public void setName(RolesName name) {
+        this.name = name;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
 }
