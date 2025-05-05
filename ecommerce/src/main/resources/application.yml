@@ -37,3 +37,7 @@ spring:
       secret: vinicius
       iterations: 185000
       hash-width: 256
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
