@@ -1,5 +1,6 @@
 package com.vinicius.ecommerce.model;
 
+import com.vinicius.ecommerce.records.data.UserDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -51,6 +52,16 @@ public class User implements UserDetails, Serializable {
     )
     private Set<Roles> roles = new HashSet<>();
 
+    public User(UserDTO data) {
+        this.email = data.email();
+        this.password = data.password();
+        this.userName = data.userName();
+        this.accountNonExpired = true;
+        this.accountNonLocked = true;
+        this.credentialsNonExpired = true;
+        this.enabled = true;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles;
@@ -68,7 +79,7 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.isAccountNonExpired();
+        return this.accountNonExpired;
     }
 
     @Override
@@ -79,5 +90,45 @@ public class User implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Set<Roles> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Roles> roles) {
+        this.roles = roles;
     }
 }
