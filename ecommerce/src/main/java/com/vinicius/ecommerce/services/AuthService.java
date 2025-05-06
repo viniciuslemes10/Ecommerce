@@ -54,4 +54,17 @@ public class AuthService {
                 .map(role -> role.getName().name())
                 .collect(Collectors.toList());
     }
+
+    public TokenVO refreshToken(String email, String refreshToken) {
+        User user = userRepository.findByEmail(email);
+
+        var tokenResponse = new TokenVO();
+        if(user != null) {
+            tokenResponse = tokenProvider.refreshToken(refreshToken);
+        } else {
+            throw new UsernameNotFoundException("User not found with username: " + email);
+        }
+
+        return tokenResponse;
+    }
 }

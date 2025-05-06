@@ -8,10 +8,7 @@ import com.vinicius.ecommerce.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -36,6 +33,26 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid client Request!");
         }
         return ResponseEntity.ok(authService.signin(data));
+    }
+
+    @SuppressWarnings("rawtypes")
+    @PutMapping("/refresh/{email}")
+    public ResponseEntity refresh(@PathVariable("email") String email,
+                                  @RequestHeader("Authorization") String refreshToken) {
+        if(checkIfParamIsNotNull(email, refreshToken)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid client request!");
+        }
+
+        var token = authService.refreshToken(email, refreshToken);
+        if(token == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid client request!");
+        }
+
+        return ResponseEntity.ok(token);
+    }
+
+    private boolean checkIfParamIsNotNull(String email, String refreshToken) {
+        return email == null || email.isBlank() || refreshToken == null || refreshToken.isBlank();
     }
 
     private boolean checkIfParamIsNotNull(AccountCredentialsVO data) {
