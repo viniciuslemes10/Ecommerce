@@ -52,6 +52,8 @@ public class User implements UserDetails, Serializable {
     )
     private Set<Roles> roles = new HashSet<>();
 
+    public User() {}
+
     public User(UserDTO data) {
         this.email = data.email();
         this.password = data.password();
