@@ -44,12 +44,12 @@ public class JwtTokenProvider {
     }
 
     // Método para criar access token e refresh token
-    public TokenVO createAccessToken(String username, List<String> roles) {
+    public TokenVO createAccessToken(String email, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
-        String accessToken = generateToken(username, roles, now, validity);
-        String refreshToken = generateRefreshToken(username, roles, now);
-        return new TokenVO(username, true, now, validity, accessToken, refreshToken);
+        String accessToken = generateToken(email, roles, now, validity);
+        String refreshToken = generateRefreshToken(email, roles, now);
+        return new TokenVO(email, true, now, validity, accessToken, refreshToken);
     }
 
     // Método para atualizar o access token a partir do refresh token
@@ -59,32 +59,32 @@ public class JwtTokenProvider {
 
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(refreshToken);
-        String userName = decodedJWT.getSubject();
+        String email = decodedJWT.getSubject();
         List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
-        return createAccessToken(userName, roles);
+        return createAccessToken(email, roles);
     }
 
     // Gera o access token
-    private String generateToken(String username, List<String> roles, Date issuedAt, Date expiresAt) {
+    private String generateToken(String email, List<String> roles, Date issuedAt, Date expiresAt) {
         String issuerUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         return JWT.create()
                 .withClaim("roles", roles)
                 .withIssuedAt(issuedAt)
                 .withExpiresAt(expiresAt)
-                .withSubject(username)
+                .withSubject(email)
                 .withIssuer(issuerUrl)
                 .sign(algorithm)
                 .strip();
     }
 
     // Gera o refresh token
-    private String generateRefreshToken(String username, List<String> roles, Date issuedAt) {
+    private String generateRefreshToken(String email, List<String> roles, Date issuedAt) {
         Date validityRefreshToken = new Date(issuedAt.getTime() + refreshTokenValidityInMilliseconds);
         return JWT.create()
                 .withClaim("roles", roles)
                 .withIssuedAt(issuedAt)
                 .withExpiresAt(validityRefreshToken)
-                .withSubject(username)
+                .withSubject(email)
                 .sign(algorithm)
                 .strip();
     }

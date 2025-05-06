@@ -44,13 +44,15 @@ public class User implements UserDetails, Serializable {
     @Column(name = "enabled")
     private Boolean enabled;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tb_users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "roles_id")
     )
     private Set<Roles> roles = new HashSet<>();
+
+    public User() {}
 
     public User(UserDTO data) {
         this.email = data.email();
