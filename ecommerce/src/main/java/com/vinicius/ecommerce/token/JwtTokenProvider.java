@@ -60,15 +60,16 @@ public class JwtTokenProvider {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(refreshToken);
         String email = decodedJWT.getSubject();
-        List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
+        List<String> roles = decodedJWT.getClaim("authorities").asList(String.class);
         return createAccessToken(email, roles);
     }
 
     // Gera o access token
     private String generateToken(String email, List<String> roles, Date issuedAt, Date expiresAt) {
+
         String issuerUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         return JWT.create()
-                .withClaim("roles", roles)
+                .withClaim("authorities", roles)
                 .withIssuedAt(issuedAt)
                 .withExpiresAt(expiresAt)
                 .withSubject(email)
@@ -79,9 +80,10 @@ public class JwtTokenProvider {
 
     // Gera o refresh token
     private String generateRefreshToken(String email, List<String> roles, Date issuedAt) {
+
         Date validityRefreshToken = new Date(issuedAt.getTime() + refreshTokenValidityInMilliseconds);
         return JWT.create()
-                .withClaim("roles", roles)
+                .withClaim("authorities", roles)
                 .withIssuedAt(issuedAt)
                 .withExpiresAt(validityRefreshToken)
                 .withSubject(email)
@@ -117,7 +119,10 @@ public class JwtTokenProvider {
     // Método para obter a autenticação a partir do token
     public Authentication getAuthentication(String token) {
         DecodedJWT decodedJWT = decodeToken(token);
+        // Altere "roles" para "authorities"
+        List<String> authorities = decodedJWT.getClaim("authorities").asList(String.class);
         UserDetails userDetails = userDetailsService.loadUserByUsername(decodedJWT.getSubject());
+        // Certifique-se de que os authorities estejam sendo passados corretamente para as permissões
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }
