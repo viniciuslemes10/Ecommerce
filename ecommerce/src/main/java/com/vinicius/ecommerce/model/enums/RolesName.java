@@ -1,7 +1,7 @@
 package com.vinicius.ecommerce.model.enums;
 
 public enum RolesName {
-    ADMIN,
-    EMPLOYEE,
-    COMMON
+    ROLE_ADMIN,
+    ROLE_EMPLOYEE,
+    ROLE_COMMON
 }
