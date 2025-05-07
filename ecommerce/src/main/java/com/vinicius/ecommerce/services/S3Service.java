@@ -1,6 +1,8 @@
 package com.vinicius.ecommerce.services;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.vinicius.ecommerce.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -49,5 +51,21 @@ public class S3Service {
         out.write(image.getBytes());
         out.close();
         return fileConvert;
+    }
+
+    public String updateImage(Product product, MultipartFile image) {
+        String fileName = this.formatImageName(product.getImageUrl());
+        this.deleteImage(fileName);
+        return this.uploadImage(image);
+    }
+
+    public void deleteImage(String image) {
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucketName, image);
+        amazonS3.deleteObject(deleteObjectRequest);
+    }
+
+    public String formatImageName(String image) {
+        int lastSlashIndex = image.lastIndexOf("/");
+        return image.substring(lastSlashIndex + 1);
     }
 }
