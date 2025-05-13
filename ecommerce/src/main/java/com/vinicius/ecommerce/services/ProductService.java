@@ -33,9 +33,6 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private UpdateValues updateValues;
-
     public ProductDetailsDTO createProduct(Product product, MultipartFile image, Long categoryId) {
         ProductValidator.validateProduct(product);
         String generatedImage = null;
@@ -81,10 +78,10 @@ public class ProductService {
         var product = repository.findById(id)
                 .orElseThrow(ProductNotFoundException::new);
 
-        updateValues.updateIfNotNullOrEmpty(data.name(), product::setName);
-        updateValues.updateIfNotNullOrEmpty(data.description(), product::setDescription);
-        updateValues.updateIfNotNullOrEmpty(data.stock(), product::setStock);
-        updateValues.updateIfNotNullOrEmpty(data.price(), product::setPrice);
+        UpdateValues.updateIfNotNullOrEmpty(data.name(), product::setName);
+        UpdateValues.updateIfNotNullOrEmpty(data.description(), product::setDescription);
+        UpdateValues.updateIfNotNullOrEmpty(data.stock(), product::setStock);
+        UpdateValues.updateIfNotNullOrEmpty(data.price(), product::setPrice);
 
         if(data.image() != null && !data.image().isEmpty()) {
             String imageUpdate = s3Service.updateImage(product, data.image());
