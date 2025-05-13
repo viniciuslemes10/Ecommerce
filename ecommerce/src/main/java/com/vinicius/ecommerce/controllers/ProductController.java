@@ -31,10 +31,11 @@ public class ProductController {
             @RequestParam(value = "description") String description,
             @RequestParam(value = "price") BigDecimal price,
             @RequestParam(value = "image") MultipartFile image,
-            @RequestParam(value = "stock") Integer stock
+            @RequestParam(value = "stock") Integer stock,
+            @RequestParam(value = "categoryId") Long categoryId
     ) {
         var product = new Product(name, description, price, stock);
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.createProduct(product, image));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createProduct(product, image, categoryId));
     }
 
     @GetMapping("{id}")
@@ -45,13 +46,16 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductDetailsDTO>> getAllProducts(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "priceMin", required = false) BigDecimal priceMin,
+            @RequestParam(value = "priceMax", required = false) BigDecimal priceMax,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "20") Integer size,
             @RequestParam(value = "direction", defaultValue = "desc") String direction
     ) {
         var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "price"));
-        var products = service.getAllProducts(pageable);
+        var products = service.getAllProducts(name, priceMin, priceMax, pageable);
         return ResponseEntity.ok(products);
     }
 
@@ -63,8 +67,10 @@ public class ProductController {
             @RequestParam(value = "description") String description,
             @RequestParam(value = "price") BigDecimal price,
             @RequestParam(value = "image") MultipartFile image,
-            @RequestParam(value = "stock") Integer stock) {
-        var data = new ProductDTO(name, description, price, image, stock);
+            @RequestParam(value = "stock") Integer stock,
+            @RequestParam(value = "categoryId") Long categoryId
+            ) {
+        var data = new ProductDTO(name, description, price, image, stock, categoryId);
         return ResponseEntity.ok(service.update(data, id));
     }
 

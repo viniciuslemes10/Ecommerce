@@ -9,6 +9,7 @@ public record ProductDTO(
         String description,
         BigDecimal price,
         MultipartFile image,
-        Integer stock
+        Integer stock,
+        Long categoryId
 ) {
 }

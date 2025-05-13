@@ -1,15 +1,25 @@
 package com.vinicius.ecommerce.services;
 
+import com.vinicius.ecommerce.exceptions.CategoryNotFoudException;
+import com.vinicius.ecommerce.exceptions.ImageNotProvidedException;
+import com.vinicius.ecommerce.exceptions.ImageUploadException;
+import com.vinicius.ecommerce.exceptions.ProductNotFoundException;
 import com.vinicius.ecommerce.model.Product;
 import com.vinicius.ecommerce.records.data.ProductDTO;
 import com.vinicius.ecommerce.records.data.ProductDetailsDTO;
+import com.vinicius.ecommerce.repositories.CategoryRepository;
 import com.vinicius.ecommerce.repositories.ProductRepository;
+import com.vinicius.ecommerce.utils.ProductSpecification;
+import com.vinicius.ecommerce.utils.ProductValidator;
 import com.vinicius.ecommerce.utils.UpdateValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 
 @Service
 public class ProductService {
@@ -21,46 +31,57 @@ public class ProductService {
     private ProductRepository repository;
 
     @Autowired
-    private UpdateValues updateValues;
+    private CategoryRepository categoryRepository;
 
-    public ProductDetailsDTO createProduct(Product product, MultipartFile image) {
+    public ProductDetailsDTO createProduct(Product product, MultipartFile image, Long categoryId) {
+        ProductValidator.validateProduct(product);
         String generatedImage = null;
 
         if(image.isEmpty()) {
-            throw new RuntimeException("Image not provided!");
+            throw new ImageNotProvidedException();
         }
 
         generatedImage = s3Service.uploadImage(image);
 
         if(generatedImage == null) {
-            throw new RuntimeException("Error uploading image to s3 bucket!");
+            throw new ImageUploadException();
         }
 
         product.setImageUrl(generatedImage);
+
+        var category = categoryRepository.findById(categoryId)
+                .orElseThrow(CategoryNotFoudException::new);
+
+        product.setCategory(category);
+
         var productSave = repository.save(product);
         return new ProductDetailsDTO(productSave);
     }
 
     public ProductDetailsDTO findById(Long id) {
         var product = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found!"));
+                .orElseThrow(ProductNotFoundException::new);
 
         return new ProductDetailsDTO(product);
     }
 
-    public Page<ProductDetailsDTO> getAllProducts(Pageable pageable) {
-        var pageProduct = repository.findAll(pageable);
-        return pageProduct.map(ProductDetailsDTO::new);
+    public Page<ProductDetailsDTO> getAllProducts(
+            String name,
+            BigDecimal priceMin,
+            BigDecimal priceMax,
+            Pageable pageable) {
+        Specification<Product> specification = ProductSpecification.withFilters(name, priceMin, priceMax);
+        return repository.findAll(specification, pageable).map(ProductDetailsDTO::new);
     }
 
     public ProductDetailsDTO update(ProductDTO data, Long id) {
         var product = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found!"));
+                .orElseThrow(ProductNotFoundException::new);
 
-        updateValues.updateIfNotNullOrEmpty(data.name(), product::setName);
-        updateValues.updateIfNotNullOrEmpty(data.description(), product::setDescription);
-        updateValues.updateIfNotNullOrEmpty(data.stock(), product::setStock);
-        updateValues.updateIfNotNullOrEmpty(data.price(), product::setPrice);
+        UpdateValues.updateIfNotNullOrEmpty(data.name(), product::setName);
+        UpdateValues.updateIfNotNullOrEmpty(data.description(), product::setDescription);
+        UpdateValues.updateIfNotNullOrEmpty(data.stock(), product::setStock);
+        UpdateValues.updateIfNotNullOrEmpty(data.price(), product::setPrice);
 
         if(data.image() != null && !data.image().isEmpty()) {
             String imageUpdate = s3Service.updateImage(product, data.image());
@@ -73,7 +94,7 @@ public class ProductService {
 
     public void delete(Long id) {
         var product = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found!"));
+                .orElseThrow(ProductNotFoundException::new);
         String filename = s3Service.formatImageName(product.getImageUrl());
         s3Service.deleteImage(filename);
         repository.delete(product);

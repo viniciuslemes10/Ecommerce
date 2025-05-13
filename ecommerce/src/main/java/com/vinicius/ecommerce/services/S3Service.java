@@ -2,6 +2,7 @@ package com.vinicius.ecommerce.services;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.vinicius.ecommerce.exceptions.ImageUploadException;
 import com.vinicius.ecommerce.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +41,7 @@ public class S3Service {
             file.delete();
             return amazonS3.getUrl(bucketName, fileName).toString();
         } catch (IOException ex) {
-            System.out.println("Error uploading image to s3 bucket: " + ex.getMessage());
-            return null;
+            throw new ImageUploadException(ex.getMessage());
         }
     }
 

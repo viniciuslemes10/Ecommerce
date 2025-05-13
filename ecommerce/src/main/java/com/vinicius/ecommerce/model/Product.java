@@ -29,6 +29,10 @@ public class Product {
     @Column(name = "stock")
     private Integer stock;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
     public Product() {}
 
     public Product(ProductDTO data) {
@@ -91,5 +95,13 @@ public class Product {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
