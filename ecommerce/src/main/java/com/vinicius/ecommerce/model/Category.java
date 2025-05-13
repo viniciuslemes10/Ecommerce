@@ -1,5 +1,6 @@
 package com.vinicius.ecommerce.model;
 
+import com.vinicius.ecommerce.records.data.CategoryDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,6 +24,11 @@ public class Category {
     private List<Product> products;
 
     public Category() {}
+
+    public Category(CategoryDTO data) {
+        this.name = data.name();
+        this.description = data.description();
+    }
 
     public Long getId() {
         return id;
