@@ -8,19 +8,19 @@ import java.util.function.Consumer;
 @Component
 public class UpdateValues {
 
-    public void updateIfNotNullOrEmpty(String value, Consumer<String> setter) {
+    public static void updateIfNotNullOrEmpty(String value, Consumer<String> setter) {
         if(value != null && !value.isBlank()) {
             setter.accept(value);
         }
     }
 
-    public void updateIfNotNullOrEmpty(BigDecimal value, Consumer<BigDecimal> setter) {
+    public static void updateIfNotNullOrEmpty(BigDecimal value, Consumer<BigDecimal> setter) {
         if (value != null && value.compareTo(BigDecimal.ZERO) > 0) {
             setter.accept(value);
         }
     }
 
-    public void updateIfNotNullOrEmpty(Integer value, Consumer<Integer> setter) {
+    public static void updateIfNotNullOrEmpty(Integer value, Consumer<Integer> setter) {
         if (value != null && value > 0) {
             setter.accept(value);
         }
